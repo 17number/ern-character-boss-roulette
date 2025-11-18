@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--p:14px}
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Noto Sans JP',sans-serif;background:linear-gradient(180deg,#071224 0%,#07142a 100%);color:#e6eef6}
+    .wrap{max-width:1100px;margin:28px auto;padding:18px;background:rgba(255,255,255,0.02);border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+    h1{margin:0 0 8px;font-size:20px}
+    p.lead{margin:0 0 16px;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    .card{background:var(--card);padding:14px;border-radius:10px}
+    .list{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.03);cursor:pointer;border:1px solid rgba(255,255,255,0.03);user-select:none}
+    .chip input{display:none}
+    .chip:has(input:checked){background:#1f6feb;border-color:#1f6feb;color:white}
+    button{background:#1f6feb;border:none;padding:8px 12px;border-radius:8px;color:white;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    .result{font-size:18px;margin-top:12px}
+    .result .row{margin:6px 0}
+    .small{font-size:13px}
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .footer{margin-top:12px;color:var(--muted);font-size:13px}
+    .color-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-2px}
+    .dot-red{background:#f87171}
+    .dot-blue{background:#60a5fa}
+    .dot-green{background:#86efac}
+    .char-red{color:#f87171}
+    .char-blue{color:#60a5fa}
+    .char-green{color:#86efac}
+    input[type="number"]{width:64px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    label.small{display:flex;align-items:center;gap:8px}
+    .anim-slot{height:54px;display:flex;align-items:center;justify-content:center}
+    .spinner{padding:6px 12px;border-radius:8px;background:linear-gradient(90deg,#0b1220,#0f1b2a);border:1px solid rgba(255,255,255,0.04)}
+    @media(max-width:1080px){.grid{grid-template-columns:1fr;}.wrap{margin:12px}}
+    #chars.list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    #chars.list .chip { width: 100%; box-sizing: border-box; }
+    #bosses.list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    #bosses.list .chip { width: 100%; box-sizing: border-box; }
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: rgba(20,25,30,0.95);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(2,6,23,0.6);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 9999;
+      font-size: 14px;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @media(max-width:1080px){
+      .grid {
+        display: flex;
+        flex-direction: column;
+      }
+      .grid > div:nth-child(2) {
+        order: -1;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット</h1>
+    <div class="grid">
+      <div>
+        <div class="card">
+          <div style="display:flex;justify-content:flex-start;align-items:center">
+            <div style="margin-right: 12px">
+              <div class="muted">プレイヤー数</div>
+              <div style="margin-top:6px"><input id="players" type="number" min="1" max="3" value="3" /></div>
+            </div>
+            <div style="margin-right: 12px">
+              <div class="muted">キャラクター被り</div>
+              <div style="margin-top:10px; margin-bottom:4px;"><label class="small"><input id="allowDup" type="checkbox" checked /> 許可</label></div>
+            </div>
+            <button id="spin" style="margin-right: 12px">ルーレット</button>
+            <button id="reset">初期化</button>
+          </div>
+
+          <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+          <div>
+            <div class="muted">キャラクター候補（クリックで 有効/無効 の切替）</div>
+            <div id="chars" class="list" style="margin-top:8px"></div>
+          </div>
+
+          <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+          <div>
+            <div class="muted">ボス候補（クリックで 有効/無効 の切替）</div>
+            <div id="bosses" class="list" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="result" id="resultBox"></div>
+          <button id="copy">結果をコピー</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // データ
+  const CHARACTERS = [
+    '追跡者',
+    '守護者',
+    '鉄の目',
+    'レディ',
+    '無頼漢',
+    '復讐者',
+    '隠者',
+    '執行者',
+  ];
+  const BOSSES = [
+    {name:'三つ首の獣', kana:'グラディウス', deep:false},
+    {name:'食らいつく顎', kana:'エデレ', deep:false},
+    {name:'知性の蟲', kana:'グノスター', deep:false},
+    {name:'兆し', kana:'マリス', deep:false},
+    {name:'調律の魔物', kana:'リブラ', deep:false},
+    {name:'闇駆ける狩人', kana:'フルゴール', deep:false},
+    {name:'霧の裂け目', kana:'カリゴ', deep:false},
+    {name:'夜を象る者', kana:'ナメレス', deep:false},
+    // 常夜
+    {name:'[常夜] 三つ首の獣', kana:'常夜グラディウス', deep:true},
+    {name:'[常夜] 食らいつく顎', kana:'常夜エデレ', deep:true},
+    {name:'[常夜] 知性の蟲', kana:'常夜グノスター', deep:true},
+    {name:'[常夜] 兆し', kana:'常夜マリス', deep:true},
+    {name:'[常夜] 調律の魔物', kana:'常夜リブラ', deep:true},
+    {name:'[常夜] 闇駆ける狩人', kana:'常夜フルゴール', deep:true},
+    {name:'[常夜] 霧の裂け目', kana:'常夜カリゴ', deep:true},
+    {name:'深き夜', kana:null, deep:true},
+  ];
+
+  // UI refs
+  const charsEl = document.getElementById('chars');
+  const bossesEl = document.getElementById('bosses');
+  const playersEl = document.getElementById('players');
+  const allowDupEl = document.getElementById('allowDup');
+  const resultBox = document.getElementById('resultBox');
+
+  // state
+  let charState = Array(CHARACTERS.length).fill(true);
+  let bossState = Array(BOSSES.length).fill((i)=> !BOSSES[i].deep);
+  bossState = bossState.map((v,i)=> !BOSSES[i].deep);
+  let playerIndexes = [null, null, null];
+  let bossIndex = null;
+
+  function showToast(msg){
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    // 強制 reflow でアニメ開始
+    requestAnimationFrame(()=> t.classList.add('show'));
+    setTimeout(()=>{
+      t.classList.remove('show');
+      setTimeout(()=> t.remove(), 300);
+    }, 2200);
+  }
+
+  // render lists
+  function renderChars(){
+    charsEl.innerHTML = '';
+    CHARACTERS.forEach((c,i)=>{
+      const btn = document.createElement('label');
+      btn.className = 'chip';
+      btn.innerHTML = `<input type="checkbox" data-i="${i}" ${charState[i]? 'checked':''}/> ${c}`;
+      btn.querySelector('input').addEventListener('change', e => { charState[i]=e.target.checked; });
+      charsEl.appendChild(btn);
+    });
+  }
+  function renderBosses(){
+    bossesEl.innerHTML = '';
+    BOSSES.forEach((b,i)=>{
+      const isDeep = b.deep;
+      const outer = document.createElement('label');
+      outer.className = 'chip';
+      const disabled = isDeep ? '' : '';
+      const checked = bossState[i] ? 'checked' : '';
+      outer.innerHTML = `<input type="checkbox" data-i="${i}" ${checked} /> ${b.name}${b.kana ? ' (' + b.kana + ')' : ''}`;
+      const cb = outer.querySelector('input');
+      cb.addEventListener('change', e=>{ bossState[i]=e.target.checked; });
+      if(isDeep){
+        // control via night list
+        cb.checked = bossState[i];
+      }
+      bossesEl.appendChild(outer);
+    });
+  }
+
+  // pick random helpers
+  function spinOnce(){
+    // build candidate lists
+    const candidatesChars = charState.map((v,i)=> v? i : null).filter(v=> v!==null);
+    let candidatesBosses = bossState.map((v,i)=> v? i : null).filter(v=> v!==null);
+    // if includeNight checkbox unchecked, filter night out
+
+    if(candidatesChars.length === 0 || candidatesBosses.length === 0){
+      resultBox.innerHTML = '<div class="muted">候補が足りません。キャラ／ボスを1つ以上選択してください。</div>';
+      return null;
+    }
+
+    const players = Math.max(1, Math.min(3, parseInt(playersEl.value)||1));
+    const allowDup = allowDupEl.checked;
+
+    // create result
+    // pick boss
+    bossIndex = _.sample(candidatesBosses);
+    // pick characters
+    playerIndexes = [];
+    let pool = [...candidatesChars];
+    for(let p=0;p<players;p++){
+      if(pool.length===0){
+        if(allowDup) pool = [...candidatesChars]; else break;
+      }
+      const pick = _.sample(pool);
+      playerIndexes.push(pick);
+      if(!allowDup){ pool = pool.filter(x=> x!==pick); }
+    }
+
+    // render
+    renderResult(bossIndex, playerIndexes);
+    return {boss:bossIndex, chars:playerIndexes};
+  }
+
+  function renderResult(bossIndex, playerIndexes){
+    const boss = BOSSES[bossIndex];
+    let html = '';
+    html += `<div class="row">ボス: <strong>${boss.name}</strong>${boss.kana ? ' (' + boss.kana + ')' : ''}</div>`;
+    const colors = ['青','赤','緑'];
+    const colorClasses = ['char-blue','char-red','char-green'];
+    playerIndexes.forEach((ci,idx)=>{
+      const col = colors[idx] || ('プレイヤー'+(idx+1));
+      html += `<div class="row ${colorClasses[idx] || ''}"><span style="display:inline-block"></span><strong>${col}:</strong> ${CHARACTERS[ci]}</div>`;
+    });
+    resultBox.innerHTML = html;
+  }
+
+  function copyResultText(){
+    if(bossIndex === null || !playerIndexes.length){ alert('まだ結果がありません。ルーレットを回してください。'); return; }
+    const boss = BOSSES[bossIndex];
+    const chars = playerIndexes.map(x=> CHARACTERS[parseInt(x)]);
+    const colors = ['青','赤','緑'];
+    let txt = `ボス: ${boss.name}${boss.kana ? ' (' + boss.kana + ')' : ''}\n`;
+    chars.forEach((c,i)=> txt += `${colors[i]}: ${c}\n`);
+    navigator.clipboard.writeText(txt).then(()=>{ showToast('結果をクリップボードにコピーしました'); })
+    .catch(()=>{ showToast('クリップボードへのコピーに失敗しました'); });
+  }
+
+  function renderAll(){ renderChars(); renderBosses(); }
+
+  // event bindings
+  document.getElementById('spin').addEventListener('click', ()=> spinOnce());
+  document.getElementById('copy').addEventListener('click', ()=> copyResultText());
+  document.getElementById('reset').addEventListener('click', ()=>{
+    charState = Array(CHARACTERS.length).fill(true);
+    bossState = bossState.map((_,i)=> !BOSSES[i].deep);
+    allowDupEl.checked = true;
+    playersEl.value = 3;
+    renderAll();
+    spinOnce();
+  });
+
+  // initial render
+  renderAll();
+  spinOnce();
+})();
+</script>
+</body>
+</html>

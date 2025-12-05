@@ -132,6 +132,10 @@
               <div class="muted">キャラクター被り</div>
               <div style="margin-top:10px; margin-bottom:4px;"><label class="small"><input id="allowDup" type="checkbox" checked /> 許可</label></div>
             </div>
+            <div style="margin-right: 12px">
+              <div class="muted">DLC</div>
+              <div style="margin-top:10px; margin-bottom:4px;"><label class="small"><input id="withDlc" type="checkbox" checked /> あり</label></div>
+            </div>
             <button id="spin" style="margin-right: 12px">ルーレット</button>
             <button id="reset">初期化</button>
           </div>
@@ -169,33 +173,37 @@
 (() => {
   // データ
   const CHARACTERS = [
-    '追跡者',
-    '守護者',
-    '鉄の目',
-    'レディ',
-    '無頼漢',
-    '復讐者',
-    '隠者',
-    '執行者',
+    {name:'追跡者', dlc:false},
+    {name:'守護者', dlc:false},
+    {name:'鉄の目', dlc:false},
+    {name:'レディ', dlc:false},
+    {name:'無頼漢', dlc:false},
+    {name:'復讐者', dlc:false},
+    {name:'隠者', dlc:false},
+    {name:'執行者', dlc:false},
+    {name:'学者(DLC)', dlc:true},
+    {name:'葬儀屋(DLC)', dlc:true},
   ];
   const BOSSES = [
-    {name:'三つ首の獣', kana:'グラディウス', deep:false},
-    {name:'食らいつく顎', kana:'エデレ', deep:false},
-    {name:'知性の蟲', kana:'グノスター', deep:false},
-    {name:'兆し', kana:'マリス', deep:false},
-    {name:'調律の魔物', kana:'リブラ', deep:false},
-    {name:'闇駆ける狩人', kana:'フルゴール', deep:false},
-    {name:'霧の裂け目', kana:'カリゴ', deep:false},
-    {name:'夜を象る者', kana:'ナメレス', deep:false},
+    {name:'三つ首の獣', kana:'グラディウス', deep:false, dlc:false},
+    {name:'食らいつく顎', kana:'エデレ', deep:false, dlc:false},
+    {name:'知性の蟲', kana:'グノスター', deep:false, dlc:false},
+    {name:'兆し', kana:'マリス', deep:false, dlc:false},
+    {name:'調律の魔物', kana:'リブラ', deep:false, dlc:false},
+    {name:'闇駆ける狩人', kana:'フルゴール', deep:false, dlc:false},
+    {name:'霧の裂け目', kana:'カリゴ', deep:false, dlc:false},
+    {name:'安寧者たち(DLC)', kana:'ハルモニア', deep:false, dlc:true},
+    {name:'瓦礫の王(DLC)', kana:'ストラゲス', deep:false, dlc:true},
+    {name:'夜を象る者', kana:'ナメレス', deep:false, dlc:false},
     // 常夜
-    {name:'[常夜] 三つ首の獣', kana:'常夜グラディウス', deep:true},
-    {name:'[常夜] 食らいつく顎', kana:'常夜エデレ', deep:true},
-    {name:'[常夜] 知性の蟲', kana:'常夜グノスター', deep:true},
-    {name:'[常夜] 兆し', kana:'常夜マリス', deep:true},
-    {name:'[常夜] 調律の魔物', kana:'常夜リブラ', deep:true},
-    {name:'[常夜] 闇駆ける狩人', kana:'常夜フルゴール', deep:true},
-    {name:'[常夜] 霧の裂け目', kana:'常夜カリゴ', deep:true},
-    {name:'深き夜', kana:null, deep:true},
+    {name:'[常夜] 三つ首の獣', kana:'常夜グラディウス', deep:true, dlc:false},
+    {name:'[常夜] 食らいつく顎', kana:'常夜エデレ', deep:true, dlc:false},
+    {name:'[常夜] 知性の蟲', kana:'常夜グノスター', deep:true, dlc:false},
+    {name:'[常夜] 兆し', kana:'常夜マリス', deep:true, dlc:false},
+    {name:'[常夜] 調律の魔物', kana:'常夜リブラ', deep:true, dlc:false},
+    {name:'[常夜] 闇駆ける狩人', kana:'常夜フルゴール', deep:true, dlc:false},
+    {name:'[常夜] 霧の裂け目', kana:'常夜カリゴ', deep:true, dlc:false},
+    {name:'深き夜', kana:null, deep:true, dlc:false},
   ];
 
   // UI refs
@@ -203,6 +211,7 @@
   const bossesEl = document.getElementById('bosses');
   const playersEl = document.getElementById('players');
   const allowDupEl = document.getElementById('allowDup');
+  const withDlcEl = document.getElementById('withDlc');
   const resultBox = document.getElementById('resultBox');
 
   // state
@@ -231,7 +240,16 @@
     CHARACTERS.forEach((c,i)=>{
       const btn = document.createElement('label');
       btn.className = 'chip';
-      btn.innerHTML = `<input type="checkbox" data-i="${i}" ${charState[i]? 'checked':''}/> ${c}`;
+      btn.innerHTML = `
+        <input
+          type="checkbox"
+          value="${c.name}"
+          data-dlc="${c.dlc}"
+          data-i="${i}"
+          ${charState[i]? 'checked':''}
+        />
+        ${c.name}
+      `;
       btn.querySelector('input').addEventListener('change', e => { charState[i]=e.target.checked; });
       charsEl.appendChild(btn);
     });
@@ -244,7 +262,16 @@
       outer.className = 'chip';
       const disabled = isDeep ? '' : '';
       const checked = bossState[i] ? 'checked' : '';
-      outer.innerHTML = `<input type="checkbox" data-i="${i}" ${checked} /> ${b.name}${b.kana ? ' (' + b.kana + ')' : ''}`;
+      outer.innerHTML = `
+        <input
+          type="checkbox"
+          value="${b.name}"
+          data-i="${i}"
+          data-dlc="${b.dlc}"
+          ${checked}
+        />
+        ${b.name}${b.kana ? ' (' + b.kana + ')' : ''}
+      `;
       const cb = outer.querySelector('input');
       cb.addEventListener('change', e=>{ bossState[i]=e.target.checked; });
       if(isDeep){
@@ -254,6 +281,37 @@
       bossesEl.appendChild(outer);
     });
   }
+
+  // toggle dlc elements
+  function toggleDlcElements() {
+    const withDlc = withDlcEl.checked;
+    const dlcCharacters = document.querySelectorAll('#chars input[type="checkbox"][data-dlc="true"]');
+    const dlcBosses = document.querySelectorAll('#bosses input[type="checkbox"][data-dlc="true"]');
+    if (withDlc) {
+      dlcCharacters.forEach(i => {
+        i.checked = true;
+        i.removeAttribute('disabled');
+        i.dispatchEvent(new Event('change'));
+      });
+      dlcBosses.forEach(i => {
+        i.checked = true;
+        i.removeAttribute('disabled');
+        i.dispatchEvent(new Event('change'));
+      })
+    } else {
+      dlcCharacters.forEach(i => {
+        i.checked = false;
+        i.setAttribute('disabled', 'disabled');
+        i.dispatchEvent(new Event('change'));
+      });
+      dlcBosses.forEach(i => {
+        i.checked = false;
+        i.setAttribute('disabled', 'disabled');
+        i.dispatchEvent(new Event('change'));
+      })
+    }
+  }
+  document.getElementById('withDlc').addEventListener('change', toggleDlcElements);
 
   // pick random helpers
   function spinOnce(){
@@ -298,7 +356,12 @@
     const colorClasses = ['char-blue','char-red','char-green'];
     playerIndexes.forEach((ci,idx)=>{
       const col = colors[idx] || ('プレイヤー'+(idx+1));
-      html += `<div class="row ${colorClasses[idx] || ''}"><span style="display:inline-block"></span><strong>${col}:</strong> ${CHARACTERS[ci]}</div>`;
+      html += `
+        <div class="row ${colorClasses[idx] || ''}">
+          <span style="display:inline-block"></span>
+          <strong>${col}:</strong> ${CHARACTERS[ci].name}
+        </div>
+      `;
     });
     resultBox.innerHTML = html;
   }
@@ -309,7 +372,7 @@
     const chars = playerIndexes.map(x=> CHARACTERS[parseInt(x)]);
     const colors = ['青','赤','緑'];
     let txt = `ボス: ${boss.name}${boss.kana ? ' (' + boss.kana + ')' : ''}\n`;
-    chars.forEach((c,i)=> txt += `${colors[i]}: ${c}\n`);
+    chars.forEach((c,i)=> txt += `${colors[i]}: ${c.name}\n`);
     navigator.clipboard.writeText(txt).then(()=>{ showToast('結果をクリップボードにコピーしました'); })
     .catch(()=>{ showToast('クリップボードへのコピーに失敗しました'); });
   }

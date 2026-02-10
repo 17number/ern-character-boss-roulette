@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット</title>
-  <meta name="description" content="ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット">
+  <title>ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット(ランダムナイトレイン)</title>
+  <meta name="description" content="ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット(ランダムナイトレイン)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="keywords" content="ELDEN RING NIGHTREIGN,ナイトレイン,NIGHTREIGN,ツール,ルーレット,キャラクター,ボス,選択,ランダム,ランダムナイトレイン">
   <meta name="robots" content="index, follow">
@@ -25,7 +25,7 @@
       "url": "https://17number.github.io/ern-character-boss-roulette/",
       "applicationCategory": "Utility",
       "operatingSystem": "Web",
-      "description": "ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット",
+      "description": "ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット(ランダムナイトレイン)",
       "author": {
         "@type": "Person",
         "name": "17number"
@@ -79,6 +79,11 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
     }
+    @media (max-width: 767px) {
+      #chars.list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
     #chars.list .chip { width: 100%; box-sizing: border-box; }
     #bosses.list {
       display: grid;
@@ -101,6 +106,26 @@
       z-index: 9999;
       font-size: 14px;
     }
+    .control-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 12px;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+    }
+    @media (max-width: 767px) {
+      .control-bar {
+        flex-wrap: wrap;
+      }
+      .button-group {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 8px;
+      }
+    }
     .toast.show {
       opacity: 1;
       transform: translateY(0);
@@ -119,7 +144,7 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット</h1>
+    <h1>ELDEN RING NIGHTREIGN キャラクター＆ボス ルーレット(ランダムナイトレイン)</h1>
     <div
       style="
         margin-top: 1rem;
@@ -147,21 +172,33 @@
     <div class="grid">
       <div>
         <div class="card">
-          <div style="display:flex;justify-content:flex-start;align-items:center">
-            <div style="margin-right: 12px">
+          <div class="control-bar">
+            <div class="control-item">
               <div class="muted">プレイヤー数</div>
-              <div style="margin-top:6px"><input id="players" type="number" min="1" max="3" value="3" /></div>
+              <div style="margin-top:6px">
+                <input id="players" type="number" min="1" max="3" value="3" />
+              </div>
             </div>
-            <div style="margin-right: 12px">
+
+            <div class="control-item">
               <div class="muted">キャラクター被り</div>
-              <div style="margin-top:10px; margin-bottom:4px;"><label class="small"><input id="allowDup" type="checkbox" checked /> 許可</label></div>
+              <div style="margin-top:10px; margin-bottom:4px;">
+                <label class="small"><input id="allowDup" type="checkbox" checked /> 許可</label>
+              </div>
             </div>
-            <div style="margin-right: 12px">
+
+            <div class="control-item">
               <div class="muted">DLC</div>
-              <div style="margin-top:10px; margin-bottom:4px;"><label class="small"><input id="withDlc" type="checkbox" checked /> あり</label></div>
+              <div style="margin-top:10px; margin-bottom:4px;">
+                <label class="small"><input id="withDlc" type="checkbox" checked /> あり</label>
+              </div>
             </div>
-            <button id="spin" style="margin-right: 12px">ルーレット</button>
-            <button id="reset">初期化</button>
+
+            <!-- ボタンエリア -->
+            <div class="button-group">
+              <button id="spin">ルーレット</button>
+              <button id="reset">初期化</button>
+            </div>
           </div>
 
           <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
@@ -189,7 +226,7 @@
     </div>
   </div>
 
-  <footer style="font-size: 0.9em; margin-top: 2rem; text-align: center;">
+  <footer style="font-size: 0.9em; margin-top: 2rem; padding-bottom: 2rem; text-align: center;">
     <a href="privacy.html" style="padding: 0; margin: 0;">プライバシーポリシー</a>
   </footer>
 
